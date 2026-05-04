@@ -29,7 +29,7 @@ const getCgpaClass = (cgpa) => {
 // Empty experience entry
 const emptyExp = () => ({
   id:          Date.now(),
-  exp_type:    'internship',   // 'internship' | 'job'
+  exp_type:    'internship',
   company:     '',
   role:        '',
   start_date:  '',
@@ -58,9 +58,7 @@ export default function StudentProfile() {
     active_backlog: '',
   });
 
-  // Experience stored as JSON string in backend field
   const [experiences, setExperiences] = useState([]);
-
   const [files,    setFiles]    = useState({ profile_photo: null, resume: null });
   const [previews, setPreviews] = useState({ photo: null });
 
@@ -88,7 +86,6 @@ export default function StudentProfile() {
         active_backlog:  d.active_backlog !== undefined
                            ? String(d.active_backlog) : '',
       });
-      // Parse experiences from JSON string field
       try {
         setExperiences(d.experiences ? JSON.parse(d.experiences) : []);
       } catch {
@@ -126,7 +123,6 @@ export default function StudentProfile() {
     setForm({ ...form, skills: updated.join(',') });
   };
 
-  // ── Experience helpers ──────────────────────────────────────
   const addExperience = () =>
     setExperiences(prev => [...prev, emptyExp()]);
 
@@ -138,7 +134,6 @@ export default function StudentProfile() {
       prev.map(e => e.id === id ? { ...e, [field]: value } : e)
     );
 
-  // ── Save ────────────────────────────────────────────────────
   const handleSave = async () => {
     setSaving(true);
     setMessage({ type: '', text: '' });
@@ -147,7 +142,6 @@ export default function StudentProfile() {
       Object.entries(form).forEach(([k, v]) => {
         if (v !== '') formData.append(k, v);
       });
-      // Save experiences as JSON string
       formData.append('experiences', JSON.stringify(experiences));
       if (files.profile_photo) formData.append('profile_photo', files.profile_photo);
       if (files.resume)        formData.append('resume',        files.resume);
@@ -184,33 +178,34 @@ export default function StudentProfile() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-indigo-500
+        <div className="w-12 h-12 border-4 border-primary
                         border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-slate-500 font-medium">Loading your profile...</p>
+        <p className="text-textMuted font-medium">Loading your profile...</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-background font-sans">
 
       {/* ── Navbar ── */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-3 flex
+      <nav className="bg-surface border-b border-slate-200 px-6 py-3 flex
                       justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🎓</span>
-          <span className="font-bold text-slate-800 text-lg">PlacementHub</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center
+                          justify-center text-white font-bold text-sm">P</div>
+          <span className="font-bold text-textDark text-lg tracking-tight">PlacementHub</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-500">{user?.full_name}</span>
+          <span className="text-sm text-textMuted">{user?.full_name}</span>
           <button onClick={() => navigate('/dashboard')}
-            className="text-sm text-indigo-600 hover:underline font-medium">
+            className="text-sm text-primary hover:text-secondary font-semibold transition">
             Dashboard
           </button>
           <button onClick={handleLogout}
-            className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700
+            className="text-sm bg-slate-100 hover:bg-slate-200 text-textDark
                        px-3 py-1.5 rounded-lg font-medium transition">
             Logout
           </button>
@@ -233,13 +228,13 @@ export default function StudentProfile() {
           <div className="lg:col-span-1 space-y-4">
 
             {/* Profile Card */}
-            <div className="bg-white rounded-2xl shadow-sm border
+            <div className="bg-surface rounded-2xl shadow-sm border
                             border-slate-100 p-6 text-center">
 
               {/* Photo */}
               <div className="relative inline-block mb-4">
                 <div className="w-28 h-28 rounded-full overflow-hidden
-                                bg-indigo-100 mx-auto ring-4 ring-indigo-50">
+                                bg-blue-100 mx-auto ring-4 ring-blue-50">
                   {(previews.photo || profile?.profile_photo_url || profile?.profile_photo) ? (
                     <img
                       src={
@@ -252,16 +247,16 @@ export default function StudentProfile() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center
-                                    text-4xl font-bold text-indigo-300">
+                                    text-4xl font-bold text-primary/40">
                       {user?.full_name?.[0]?.toUpperCase()}
                     </div>
                   )}
                 </div>
                 {editing && (
                   <button onClick={() => photoRef.current.click()}
-                    className="absolute bottom-0 right-0 w-8 h-8 bg-indigo-600
+                    className="absolute bottom-0 right-0 w-8 h-8 bg-primary
                                text-white rounded-full flex items-center
-                               justify-center text-sm shadow hover:bg-indigo-700">
+                               justify-center text-sm shadow hover:bg-secondary transition">
                     📷
                   </button>
                 )}
@@ -269,14 +264,14 @@ export default function StudentProfile() {
               <input ref={photoRef} type="file" name="profile_photo"
                 accept="image/*" onChange={handleFileChange} className="hidden" />
 
-              <h2 className="font-bold text-slate-800 text-lg">{user?.full_name}</h2>
-              <p className="text-slate-500 text-sm">{user?.email}</p>
+              <h2 className="font-bold text-textDark text-lg">{user?.full_name}</h2>
+              <p className="text-textMuted text-sm">{user?.email}</p>
 
               {/* Badges */}
               <div className="flex justify-center gap-2 mt-3 flex-wrap">
                 {form.branch && (
-                  <span className="bg-indigo-50 text-indigo-700 text-xs
-                                   font-semibold px-3 py-1 rounded-full uppercase">
+                  <span className="bg-blue-50 text-primary text-xs
+                                   font-semibold px-3 py-1 rounded-full uppercase tracking-wide">
                     {form.branch}
                   </span>
                 )}
@@ -313,28 +308,28 @@ export default function StudentProfile() {
               )}
 
               {/* Completion bar */}
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
+              <div className="mt-5">
+                <div className="flex justify-between text-xs text-textMuted mb-1.5">
                   <span>Profile Completion</span>
-                  <span className="font-semibold text-indigo-600">{completion}%</span>
+                  <span className="font-semibold text-primary">{completion}%</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-indigo-500 h-2 rounded-full transition-all"
+                  <div className="bg-primary h-2 rounded-full transition-all duration-500"
                     style={{ width: `${completion}%` }} />
                 </div>
               </div>
             </div>
 
             {/* Links Card */}
-            <div className="bg-white rounded-2xl shadow-sm border
+            <div className="bg-surface rounded-2xl shadow-sm border
                             border-slate-100 p-5 space-y-3">
-              <h3 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">
+              <h3 className="font-semibold text-textDark text-xs uppercase tracking-widest">
                 Links
               </h3>
               {editing ? (
                 <>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400
+                    <label className="block text-xs font-semibold text-textMuted
                                       uppercase tracking-wide mb-1">LinkedIn URL</label>
                     <input type="url" name="linkedin_url" value={form.linkedin_url}
                       onChange={handleChange}
@@ -342,7 +337,7 @@ export default function StudentProfile() {
                       className="input-style" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400
+                    <label className="block text-xs font-semibold text-textMuted
                                       uppercase tracking-wide mb-1">GitHub URL</label>
                     <input type="url" name="github_url" value={form.github_url}
                       onChange={handleChange}
@@ -354,26 +349,26 @@ export default function StudentProfile() {
                 <>
                   {form.linkedin_url
                     ? <a href={form.linkedin_url} target="_blank" rel="noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600
-                                   hover:underline font-medium">
+                        className="flex items-center gap-2 text-sm text-primary
+                                   hover:text-secondary hover:underline font-medium transition">
                         🔗 LinkedIn Profile
                       </a>
-                    : <p className="text-xs text-slate-400">No LinkedIn added</p>}
+                    : <p className="text-xs text-textMuted">No LinkedIn added</p>}
                   {form.github_url
                     ? <a href={form.github_url} target="_blank" rel="noreferrer"
-                        className="flex items-center gap-2 text-sm text-slate-700
-                                   hover:underline font-medium">
+                        className="flex items-center gap-2 text-sm text-textDark
+                                   hover:text-primary hover:underline font-medium transition">
                         💻 GitHub Profile
                       </a>
-                    : <p className="text-xs text-slate-400">No GitHub added</p>}
+                    : <p className="text-xs text-textMuted">No GitHub added</p>}
                 </>
               )}
             </div>
 
             {/* Resume Card */}
-            <div className="bg-white rounded-2xl shadow-sm border
+            <div className="bg-surface rounded-2xl shadow-sm border
                             border-slate-100 p-5 space-y-3">
-              <h3 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">
+              <h3 className="font-semibold text-textDark text-xs uppercase tracking-widest">
                 Resume
               </h3>
               {profile?.resume ? (
@@ -384,13 +379,13 @@ export default function StudentProfile() {
                   📄 View Current Resume
                 </a>
               ) : (
-                <p className="text-xs text-slate-400">No resume uploaded</p>
+                <p className="text-xs text-textMuted">No resume uploaded</p>
               )}
               {editing && (
                 <button onClick={() => resumeRef.current.click()}
                   className="mt-2 w-full border-2 border-dashed border-slate-200
-                             rounded-xl py-3 text-sm text-slate-500
-                             hover:border-indigo-300 hover:text-indigo-500 transition">
+                             rounded-xl py-3 text-sm text-textMuted
+                             hover:border-primary hover:text-primary transition">
                   {files.resume ? `✅ ${files.resume.name}` : '+ Upload New Resume (PDF)'}
                 </button>
               )}
@@ -404,22 +399,25 @@ export default function StudentProfile() {
 
             {/* Header */}
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-slate-800">My Profile</h1>
+              <div>
+                <h1 className="text-2xl font-bold text-textDark">My Profile</h1>
+                <p className="text-sm text-textMuted mt-0.5">Manage your placement profile</p>
+              </div>
               {!editing ? (
                 <button onClick={() => setEditing(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2
+                  className="bg-primary hover:bg-secondary text-white px-5 py-2
                              rounded-xl text-sm font-semibold transition shadow-sm">
                   ✏️ Edit Profile
                 </button>
               ) : (
                 <div className="flex gap-2">
                   <button onClick={() => { setEditing(false); setMessage({ type:'',text:'' }); }}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2
+                    className="bg-slate-100 hover:bg-slate-200 text-textDark px-4 py-2
                                rounded-xl text-sm font-medium transition">
                     Cancel
                   </button>
                   <button onClick={handleSave} disabled={saving}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2
+                    className="bg-primary hover:bg-secondary text-white px-5 py-2
                                rounded-xl text-sm font-semibold transition shadow-sm
                                disabled:opacity-60">
                     {saving ? 'Saving...' : '💾 Save Changes'}
@@ -429,8 +427,10 @@ export default function StudentProfile() {
             </div>
 
             {/* ── Personal Info ── */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="font-semibold text-slate-700 mb-4 text-sm uppercase tracking-wide">
+            <div className="bg-surface rounded-2xl shadow-sm border border-slate-100 p-6">
+              <h3 className="font-semibold text-textDark mb-4 text-xs uppercase tracking-widest
+                             flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full inline-block"></span>
                 Personal Information
               </h3>
               <div className="grid grid-cols-2 gap-4">
@@ -525,7 +525,7 @@ export default function StudentProfile() {
                                     border-2 transition
                                     ${form.active_backlog === 'true'
                                       ? 'bg-red-500 border-red-500 text-white'
-                                      : 'bg-white border-slate-200 text-slate-600 hover:border-red-300'
+                                      : 'bg-white border-slate-200 text-textMuted hover:border-red-300'
                                     }`}>
                         ⚠️ Yes
                       </button>
@@ -535,7 +535,7 @@ export default function StudentProfile() {
                                     border-2 transition
                                     ${form.active_backlog === 'false'
                                       ? 'bg-emerald-500 border-emerald-500 text-white'
-                                      : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
+                                      : 'bg-white border-slate-200 text-textMuted hover:border-emerald-300'
                                     }`}>
                         ✅ No
                       </button>
@@ -547,7 +547,7 @@ export default function StudentProfile() {
                                         ? 'bg-red-50 text-red-600'
                                         : form.active_backlog === 'false'
                                         ? 'bg-emerald-50 text-emerald-700'
-                                        : 'text-slate-400'
+                                        : 'text-textMuted'
                                       }`}>
                       {backlogLabel(form.active_backlog)}
                     </span>
@@ -558,26 +558,31 @@ export default function StudentProfile() {
             </div>
 
             {/* ── About ── */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="font-semibold text-slate-700 mb-4 text-sm uppercase tracking-wide">
+            <div className="bg-surface rounded-2xl shadow-sm border border-slate-100 p-6">
+              <h3 className="font-semibold text-textDark mb-4 text-xs uppercase tracking-widest
+                             flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full inline-block"></span>
                 About Me
               </h3>
               {editing
                 ? <textarea name="about" value={form.about} onChange={handleChange} rows={4}
                     placeholder="Write a short bio about yourself, your interests, and career goals..."
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm
-                               focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none" />
-                : <p className="text-slate-600 text-sm leading-relaxed">
+                               text-textDark focus:outline-none focus:ring-2 focus:ring-blue-200
+                               focus:border-primary resize-none transition" />
+                : <p className="text-textDark text-sm leading-relaxed">
                     {form.about ||
-                      <span className="text-slate-400 italic">
+                      <span className="text-textMuted italic">
                         No bio added yet. Tell recruiters about yourself!
                       </span>}
                   </p>}
             </div>
 
             {/* ── Skills ── */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="font-semibold text-slate-700 mb-4 text-sm uppercase tracking-wide">
+            <div className="bg-surface rounded-2xl shadow-sm border border-slate-100 p-6">
+              <h3 className="font-semibold text-textDark mb-4 text-xs uppercase tracking-widest
+                             flex items-center gap-2">
+                <span className="w-1 h-4 bg-primary rounded-full inline-block"></span>
                 Skills
               </h3>
               {editing && (
@@ -586,37 +591,41 @@ export default function StudentProfile() {
                   onKeyDown={addSkill}
                   placeholder="Type a skill and press Enter (e.g. Python, React, MySQL)"
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5
-                             text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 mb-3" />
+                             text-sm text-textDark focus:outline-none focus:ring-2
+                             focus:ring-blue-200 focus:border-primary mb-3 transition" />
               )}
               <div className="flex flex-wrap gap-2">
                 {skills.length > 0
                   ? skills.map(skill => (
                       <span key={skill}
-                        className="bg-indigo-50 text-indigo-700 text-xs font-semibold
-                                   px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                        className="bg-blue-50 text-primary text-xs font-semibold
+                                   px-3 py-1.5 rounded-full border border-blue-100
+                                   flex items-center gap-1.5">
                         {skill}
                         {editing && (
                           <button onClick={() => removeSkill(skill)}
-                            className="text-indigo-400 hover:text-red-500 font-bold leading-none">
+                            className="text-primary/50 hover:text-red-500 font-bold leading-none transition">
                             ×
                           </button>
                         )}
                       </span>
                     ))
-                  : <p className="text-slate-400 text-sm italic">No skills added yet</p>}
+                  : <p className="text-textMuted text-sm italic">No skills added yet</p>}
               </div>
             </div>
 
             {/* ── PREVIOUS EXPERIENCE ── */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <div className="bg-surface rounded-2xl shadow-sm border border-slate-100 p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">
-                  💼 Previous Experience
+                <h3 className="font-semibold text-textDark text-xs uppercase tracking-widest
+                               flex items-center gap-2">
+                  <span className="w-1 h-4 bg-primary rounded-full inline-block"></span>
+                  Previous Experience
                 </h3>
                 {editing && (
                   <button type="button" onClick={addExperience}
-                    className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white
-                               px-3 py-1.5 rounded-lg font-semibold transition">
+                    className="text-xs bg-primary hover:bg-secondary text-white
+                               px-3 py-1.5 rounded-lg font-semibold transition shadow-sm">
                     + Add Experience
                   </button>
                 )}
@@ -627,7 +636,7 @@ export default function StudentProfile() {
                 <div className="text-center py-8 border-2 border-dashed
                                 border-slate-200 rounded-xl">
                   <p className="text-3xl mb-2">💼</p>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-textMuted text-sm">
                     {editing
                       ? 'Click "+ Add Experience" to add your work history'
                       : 'No experience added yet'}
@@ -641,14 +650,14 @@ export default function StudentProfile() {
                   <div key={exp.id}
                     className={`rounded-xl border p-4 transition
                                 ${editing
-                                  ? 'border-indigo-100 bg-indigo-50/30'
+                                  ? 'border-blue-100 bg-blue-50/20'
                                   : 'border-slate-100'}`}>
 
                     {editing ? (
                       /* ── Edit Mode ── */
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-indigo-600
+                          <span className="text-xs font-bold text-primary
                                            uppercase tracking-wide">
                             Experience #{idx + 1}
                           </span>
@@ -668,9 +677,9 @@ export default function StudentProfile() {
                                           border-2 transition capitalize
                                           ${exp.exp_type === t
                                             ? t === 'job'
-                                              ? 'bg-blue-600 border-blue-600 text-white'
-                                              : 'bg-indigo-600 border-indigo-600 text-white'
-                                            : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'
+                                              ? 'bg-primary border-primary text-white'
+                                              : 'bg-secondary border-secondary text-white'
+                                            : 'bg-white border-slate-200 text-textMuted hover:border-primary/40'
                                           }`}>
                               {t === 'job' ? '💼 Job' : '🎓 Internship'}
                             </button>
@@ -705,14 +714,14 @@ export default function StudentProfile() {
                               onChange={e => updateExp(exp.id, 'end_date', e.target.value)}
                               className="input-style disabled:opacity-40" />
                             <label className="flex items-center gap-1.5 mt-1
-                                              text-xs text-slate-500 cursor-pointer">
+                                              text-xs text-textMuted cursor-pointer">
                               <input type="checkbox" checked={exp.currently}
                                 onChange={e => {
                                   updateExp(exp.id, 'currently', e.target.checked);
                                   if (e.target.checked)
                                     updateExp(exp.id, 'end_date', '');
                                 }}
-                                className="accent-indigo-600" />
+                                className="accent-primary" />
                               Currently working here
                             </label>
                           </div>
@@ -734,23 +743,23 @@ export default function StudentProfile() {
                                          justify-center text-xl flex-shrink-0
                                          ${exp.exp_type === 'job'
                                            ? 'bg-blue-50'
-                                           : 'bg-indigo-50'}`}>
+                                           : 'bg-accent/10'}`}>
                           {exp.exp_type === 'job' ? '💼' : '🎓'}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-bold text-slate-800">
+                            <h4 className="font-bold text-textDark">
                               {exp.role || '—'}
                             </h4>
                             <span className={`text-xs font-semibold px-2 py-0.5
                                               rounded-full capitalize
                                               ${exp.exp_type === 'job'
-                                                ? 'bg-blue-50 text-blue-700'
-                                                : 'bg-indigo-50 text-indigo-700'}`}>
+                                                ? 'bg-blue-50 text-primary'
+                                                : 'bg-accent/10 text-secondary'}`}>
                               {exp.exp_type === 'job' ? 'Job' : 'Internship'}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-600 font-medium mt-0.5">
+                          <p className="text-sm text-textMuted font-medium mt-0.5">
                             {exp.company || '—'}
                           </p>
                           <p className="text-xs text-slate-400 mt-0.5">
@@ -767,7 +776,7 @@ export default function StudentProfile() {
                               : ''}
                           </p>
                           {exp.description && (
-                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                            <p className="text-xs text-textMuted mt-1 leading-relaxed">
                               {exp.description}
                             </p>
                           )}
@@ -785,15 +794,28 @@ export default function StudentProfile() {
 
       <style>{`
         .input-style {
-          width: 100%; border: 1px solid #e2e8f0; border-radius: 0.5rem;
-          padding: 0.5rem 0.75rem; font-size: 0.875rem; outline: none;
-          transition: box-shadow 0.15s;
+          width: 100%;
+          border: 1px solid #e2e8f0;
+          border-radius: 0.5rem;
+          padding: 0.5rem 0.75rem;
+          font-size: 0.875rem;
+          outline: none;
+          color: #1E293B;
+          background: #FFFFFF;
+          transition: border-color 0.15s, box-shadow 0.15s;
         }
-        .input-style:focus { box-shadow: 0 0 0 2px #a5b4fc; }
+        .input-style:focus {
+          border-color: #2563EB;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
         .elabel {
-          display: block; font-size: 0.7rem; font-weight: 600;
-          color: #94a3b8; text-transform: uppercase;
-          letter-spacing: 0.05em; margin-bottom: 0.25rem;
+          display: block;
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #64748B;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          margin-bottom: 0.25rem;
         }
       `}</style>
     </div>
@@ -803,8 +825,8 @@ export default function StudentProfile() {
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-400
-                        uppercase tracking-wide mb-1.5">
+      <label className="block text-xs font-semibold text-textMuted
+                        uppercase tracking-widest mb-1.5">
         {label}
       </label>
       {children}
@@ -814,7 +836,7 @@ function Field({ label, children }) {
 
 function Value({ children, className = '' }) {
   return (
-    <p className={`text-slate-700 text-sm font-medium ${className}`}>
+    <p className={`text-textDark text-sm font-medium ${className}`}>
       {children}
     </p>
   );
