@@ -1,22 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Login            from './pages/Login';
-import Register         from './pages/Register';
-import Forgotpassword   from './pages/Forgotpassword';
-import Resetpassword    from './pages/Resetpassword';
-import Dashboard        from './pages/Dashboard';
-import StudentProfile   from './pages/StudentProfile';
-import RecruiterProfile from './pages/RecruiterProfile';
-import PostJob          from './pages/PostJob';
-import ManageJobs       from './pages/ManageJobs';
-import BrowseJobs       from './pages/BrowseJobs';
-import JobDetail        from './pages/JobDetail';
-import MyApplications   from './pages/MyApplications';
-import BrowseStudents   from './pages/BrowseStudents';
-import JobApplicants    from './pages/JobApplicants';
-import ApplicationTracker from './pages/ApplicationTracker';
-import RecruiterTracker   from './pages/RecruiterTracker';
-import AdminDashboard from './pages/AdminDashboard';
+import Login               from './pages/Login';
+import Register            from './pages/Register';
+import Forgotpassword      from './pages/Forgotpassword';   // FIX: was missing route
+import Resetpassword       from './pages/Resetpassword';    // FIX: was missing route
+import Dashboard           from './pages/Dashboard';
+import StudentProfile      from './pages/StudentProfile';
+import RecruiterProfile    from './pages/RecruiterProfile';
+import PostJob             from './pages/PostJob';
+import ManageJobs          from './pages/ManageJobs';
+import BrowseJobs          from './pages/BrowseJobs';
+import JobDetail           from './pages/JobDetail';
+import MyApplications      from './pages/MyApplications';
+import BrowseStudents      from './pages/BrowseStudents';
+import JobApplicants       from './pages/JobApplicants';
+import ApplicationTracker  from './pages/ApplicationTracker';
+import RecruiterTracker    from './pages/RecruiterTracker';
+import AdminDashboard      from './pages/AdminDashboard';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -40,15 +40,17 @@ function App() {
       <BrowserRouter>
         <Routes>
 
-          {/* ── Public ── */}
-          <Route path="/login"    element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* ── Public ─────────────────────────────────────────── */}
+          <Route path="/login"           element={<Login />} />
+          <Route path="/register"        element={<Register />} />
+          <Route path="/forgot-password" element={<Forgotpassword />} />   {/* FIX: added */}
+          <Route path="/reset-password"  element={<Resetpassword />} />    {/* FIX: added */}
 
-          {/* ── Shared ── */}
+          {/* ── Shared ─────────────────────────────────────────── */}
           <Route path="/dashboard" element={
             <PrivateRoute><Dashboard /></PrivateRoute>} />
 
-          {/* ── Student ── */}
+          {/* ── Student ────────────────────────────────────────── */}
           <Route path="/profile" element={
             <PrivateRoute><StudentProfile /></PrivateRoute>} />
 
@@ -61,7 +63,10 @@ function App() {
           <Route path="/my-applications" element={
             <PrivateRoute><MyApplications /></PrivateRoute>} />
 
-          {/* ── Recruiter ── */}
+          <Route path="/tracker" element={
+            <PrivateRoute><ApplicationTracker /></PrivateRoute>} />
+
+          {/* ── Recruiter ──────────────────────────────────────── */}
           <Route path="/recruiter/profile" element={
             <PrivateRoute><RecruiterProfile /></PrivateRoute>} />
 
@@ -77,19 +82,14 @@ function App() {
           <Route path="/students/browse" element={
             <PrivateRoute><BrowseStudents /></PrivateRoute>} />
 
+          <Route path="/recruiter/tracker" element={
+            <PrivateRoute><RecruiterTracker /></PrivateRoute>} />
+
+          {/* ── Admin ──────────────────────────────────────────── */}
           <Route path="/admin" element={
-  <PrivateRoute><AdminDashboard /></PrivateRoute>
-} />
+            <PrivateRoute><AdminDashboard /></PrivateRoute>} />
 
-          <Route path="/tracker" element={
-  <PrivateRoute><ApplicationTracker /></PrivateRoute>
-} />
-
-<Route path="/recruiter/tracker" element={
-  <PrivateRoute><RecruiterTracker /></PrivateRoute>
-} />
-
-          {/* ── Default ── */}
+          {/* ── Default ────────────────────────────────────────── */}
           <Route path="*" element={<Navigate to="/login" replace />} />
 
         </Routes>
