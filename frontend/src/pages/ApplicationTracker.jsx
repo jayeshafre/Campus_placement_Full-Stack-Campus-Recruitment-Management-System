@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate }         from 'react-router-dom';
 import { getStudentStats, getAppTimeline, withdrawApplication } from '../api/auth';
 import { useAuth }             from '../context/AuthContext';
+import Navbar from '../components/Navbar';
+
 
 const STATUS_CONFIG = {
   applied:      { label: 'Applied',      color: 'bg-blue-50 text-blue-700',      icon: '📋', dot: 'bg-blue-400'    },
@@ -92,28 +94,7 @@ export default function ApplicationTracker() {
     <div className="min-h-screen bg-slate-50">
 
       {/* Navbar */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-3
-                      flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🎓</span>
-          <span className="font-bold text-slate-800 text-lg">PlacementHub</span>
-        </div>
-        <div className="flex gap-3 items-center">
-          <button onClick={() => navigate('/jobs')}
-            className="text-sm text-indigo-600 hover:underline font-medium">
-            Browse Jobs
-          </button>
-          <button onClick={() => navigate('/my-applications')}
-            className="text-sm text-indigo-600 hover:underline font-medium">
-            All Applications
-          </button>
-          <button onClick={() => navigate('/dashboard')}
-            className="text-sm bg-slate-100 hover:bg-slate-200
-                       text-slate-700 px-3 py-1.5 rounded-lg font-medium transition">
-            Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
 

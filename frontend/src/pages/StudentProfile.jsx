@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getMyProfile, updateMyProfile } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 const BRANCHES = [
   { value: 'BCA',         label: 'Bachelor of Computer Application' },
@@ -191,26 +192,7 @@ export default function StudentProfile() {
     <div className="min-h-screen bg-background font-sans">
 
       {/* ── Navbar ── */}
-      <nav className="bg-surface border-b border-slate-200 px-6 py-3 flex
-                      justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center
-                          justify-center text-white font-bold text-sm">P</div>
-          <span className="font-bold text-textDark text-lg tracking-tight">PlacementHub</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-textMuted">{user?.full_name}</span>
-          <button onClick={() => navigate('/dashboard')}
-            className="text-sm text-primary hover:text-secondary font-semibold transition">
-            Dashboard
-          </button>
-          <button onClick={handleLogout}
-            className="text-sm bg-slate-100 hover:bg-slate-200 text-textDark
-                       px-3 py-1.5 rounded-lg font-medium transition">
-            Logout
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
 

@@ -5,6 +5,7 @@ import {
   updateUserAdmin, getAdminJobs, deleteJobAdmin
 } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 
 const TABS = [
   { key: 'overview',  label: '📊 Overview'          },
@@ -152,28 +153,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Navbar ── */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-3
-                      flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🛡️</span>
-          <div>
-            <span className="font-bold text-slate-800 text-lg">PlacementHub</span>
-            <span className="ml-2 text-xs bg-rose-100 text-rose-700
-                             font-semibold px-2 py-0.5 rounded-full">
-              Admin
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-500">{user?.full_name}</span>
-          <button
-            onClick={() => { logout(); navigate('/login'); }}
-            className="text-sm bg-slate-100 hover:bg-slate-200
-                       text-slate-700 px-3 py-1.5 rounded-lg font-medium transition">
-            Logout
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
 

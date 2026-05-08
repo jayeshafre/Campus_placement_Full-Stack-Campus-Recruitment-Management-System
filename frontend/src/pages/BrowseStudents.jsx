@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate }         from 'react-router-dom';
 import { getAllStudents }       from '../api/auth';
 import { useAuth }             from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 
 const BRANCHES = [
   { value: '',           label: 'All Branches' },
-  { value: 'BCA',        label: 'Bachelor of Computer Application' },  // ← NEW
-  { value: 'BBA',        label: 'Business Management' },               // ← NEW
+  { value: 'BCA',        label: 'Bachelor of Computer Application' },
+  { value: 'BBA',        label: 'Business Management' },
   { value: 'cs',         label: 'Computer Science' },
   { value: 'it',         label: 'Information Technology' },
   { value: 'entc',       label: 'Electronics & Telecom' },
@@ -16,12 +17,18 @@ const BRANCHES = [
   { value: 'other',      label: 'Other' },
 ];
 
-// Pretty label for branch value
 const BRANCH_LABEL = {
   BCA: 'BCA', BBA: 'BBA',
   cs: 'CS', it: 'IT', entc: 'ENTC',
   mech: 'Mech', civil: 'Civil', electrical: 'Electrical', other: 'Other',
 };
+
+const inputClass =
+  'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-textDark bg-white ' +
+  'focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition placeholder-slate-400';
+
+const labelClass =
+  'block text-xs font-semibold text-textMuted uppercase tracking-widest mb-1.5';
 
 export default function BrowseStudents() {
   const { user }  = useAuth();
@@ -31,16 +38,14 @@ export default function BrowseStudents() {
   const [loading,   setLoading]   = useState(true);
   const [message,   setMessage]   = useState('');
 
-  // Filter state
   const [search,        setSearch]        = useState('');
   const [branch,        setBranch]        = useState('');
   const [minCgpa,       setMinCgpa]       = useState('');
   const [maxCgpa,       setMaxCgpa]       = useState('');
   const [skill,         setSkill]         = useState('');
   const [year,          setYear]          = useState('');
-  const [backlogFilter, setBacklogFilter] = useState(''); // '' | 'yes' | 'no'
+  const [backlogFilter, setBacklogFilter] = useState('');
 
-  // Selected student for side panel
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
@@ -90,110 +95,90 @@ export default function BrowseStudents() {
     skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background font-sans">
 
-      {/* Navbar */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-3
-                      flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🏢</span>
-          <span className="font-bold text-slate-800 text-lg">PlacementHub</span>
-          <span className="ml-2 text-xs bg-violet-100 text-violet-700
-                           font-semibold px-2 py-0.5 rounded-full">Recruiter</span>
-        </div>
-        <div className="flex gap-3 items-center">
-          <button onClick={() => navigate('/jobs/manage')}
-            className="text-sm text-violet-600 hover:underline font-medium">
-            My Jobs
-          </button>
-          <button onClick={() => navigate('/dashboard')}
-            className="text-sm bg-slate-100 hover:bg-slate-200
-                       text-slate-700 px-3 py-1.5 rounded-lg font-medium transition">
-            Dashboard
-          </button>
-        </div>
-      </nav>
+      {/* ── Navbar ── */}
+      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
 
+        {/* Page heading */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Browse Students</h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-textDark">Browse Students</h1>
+          <p className="text-textMuted text-sm mt-1">
             {students.length} student{students.length !== 1 ? 's' : ''} found
           </p>
         </div>
 
         {/* ── Filter Panel ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100
-                        p-5 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
 
-            {/* Search */}
             <div className="lg:col-span-2">
-              <label className="flabel">Search by Name</label>
+              <label className={labelClass}>Search by Name</label>
               <input type="text" value={search}
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleFilter()}
                 placeholder="e.g. Rahul"
-                className="finput" />
+                className={inputClass} />
             </div>
 
-            {/* Branch — now includes BCA & BBA */}
             <div>
-              <label className="flabel">Branch</label>
+              <label className={labelClass}>Branch</label>
               <select value={branch} onChange={e => setBranch(e.target.value)}
-                className="finput">
+                className={inputClass}>
                 {BRANCHES.map(b =>
                   <option key={b.value} value={b.value}>{b.label}</option>
                 )}
               </select>
             </div>
 
-            {/* Min CGPA */}
             <div>
-              <label className="flabel">Min CGPA</label>
+              <label className={labelClass}>Min CGPA</label>
               <input type="number" value={minCgpa}
                 onChange={e => setMinCgpa(e.target.value)}
                 placeholder="e.g. 7.0" step="0.1" min="0" max="10"
-                className="finput" />
+                className={inputClass} />
             </div>
 
-            {/* Skill */}
             <div>
-              <label className="flabel">Skill</label>
+              <label className={labelClass}>Skill</label>
               <input type="text" value={skill}
                 onChange={e => setSkill(e.target.value)}
                 placeholder="e.g. Python"
-                className="finput" />
+                className={inputClass} />
             </div>
 
-            {/* Passing Year */}
             <div>
-              <label className="flabel">Passing Year</label>
+              <label className={labelClass}>Passing Year</label>
               <input type="number" value={year}
                 onChange={e => setYear(e.target.value)}
                 placeholder="e.g. 2025"
-                className="finput" />
+                className={inputClass} />
             </div>
-
           </div>
 
-          {/* ── Active Backlog Filter row ── */}
-          <div className="mt-3 flex items-center gap-3 flex-wrap">
-            <span className="flabel mb-0">Active Backlog:</span>
+          {/* Active Backlog row */}
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <span className={`${labelClass} mb-0`}>Active Backlog:</span>
             {[
-              { val: '',    label: 'All Students'   },
-              { val: 'yes', label: '⚠️ Has Backlog'  },
-              { val: 'no',  label: '✅ No Backlog'   },
+              { val: '',    label: 'All Students'  },
+              { val: 'yes', label: 'Has Backlog'   },
+              { val: 'no',  label: 'No Backlog'    },
             ].map(opt => (
               <button key={opt.val} type="button"
                 onClick={() => setBacklogFilter(opt.val)}
-                className={`text-xs font-semibold px-4 py-2 rounded-xl
-                             border transition
-                             ${backlogFilter === opt.val
-                               ? 'bg-violet-600 text-white border-violet-600'
-                               : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-violet-300'
-                             }`}>
+                className={`text-xs font-semibold px-4 py-1.5 rounded-lg border transition-colors ${
+                  backlogFilter === opt.val
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-slate-50 text-textMuted border-slate-200 hover:border-primary hover:text-primary'
+                }`}>
+                {opt.val === 'yes' && (
+                  <span className="mr-1 text-warning">⚠</span>
+                )}
+                {opt.val === 'no' && (
+                  <span className="mr-1 text-success">✓</span>
+                )}
                 {opt.label}
               </button>
             ))}
@@ -201,22 +186,27 @@ export default function BrowseStudents() {
 
           <div className="flex gap-2 mt-4 justify-end">
             <button onClick={handleReset}
-              className="px-4 py-2 rounded-xl text-sm font-medium
-                         bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
-              ✕ Reset
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white hover:bg-slate-50 text-textMuted border border-slate-200 transition-colors flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Reset
             </button>
             <button onClick={handleFilter}
-              className="px-5 py-2 rounded-xl text-sm font-semibold
-                         bg-violet-600 hover:bg-violet-700 text-white
-                         transition shadow-sm">
-              🔍 Search
+              className="px-5 py-2 rounded-lg text-sm font-semibold bg-primary hover:bg-secondary text-white transition-colors shadow-sm flex items-center gap-1.5">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Search
             </button>
           </div>
         </div>
 
         {message && (
-          <div className="mb-4 px-4 py-3 rounded-xl text-sm
-                          bg-red-50 text-red-700 border border-red-200">
+          <div className="mb-4 px-4 py-3 rounded-lg text-sm bg-red-50 text-red-700 border border-red-200 flex items-center gap-2">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
             {message}
           </div>
         )}
@@ -229,22 +219,19 @@ export default function BrowseStudents() {
             {loading ? (
               <div className="flex items-center justify-center py-24">
                 <div className="text-center">
-                  <div className="w-10 h-10 border-4 border-violet-500
-                                  border-t-transparent rounded-full
-                                  animate-spin mx-auto mb-3" />
-                  <p className="text-slate-500 text-sm">Loading students...</p>
+                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-textMuted text-sm font-medium">Loading students…</p>
                 </div>
               </div>
             ) : students.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm border
-                              border-slate-100 p-16 text-center">
-                <div className="text-6xl mb-4">👥</div>
-                <h3 className="text-lg font-semibold text-slate-700 mb-2">
-                  No students found
-                </h3>
-                <p className="text-slate-400 text-sm">
-                  Try adjusting your filters
-                </p>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-primary opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-base font-semibold text-textDark mb-1">No students found</h3>
+                <p className="text-textMuted text-sm">Try adjusting your filters</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -254,9 +241,7 @@ export default function BrowseStudents() {
                     student={student}
                     isSelected={selected?.id === student.id}
                     onClick={() =>
-                      setSelected(
-                        selected?.id === student.id ? null : student
-                      )
+                      setSelected(selected?.id === student.id ? null : student)
                     }
                     parseSkills={parseSkills}
                   />
@@ -278,86 +263,62 @@ export default function BrowseStudents() {
           )}
         </div>
       </div>
-
-      <style>{`
-        .flabel {
-          display: block; font-size: 0.7rem; font-weight: 600;
-          color: #94a3b8; text-transform: uppercase;
-          letter-spacing: 0.05em; margin-bottom: 0.25rem;
-        }
-        .finput {
-          width: 100%; border: 1px solid #e2e8f0; border-radius: 0.5rem;
-          padding: 0.45rem 0.75rem; font-size: 0.8rem; outline: none;
-          background: white; transition: box-shadow 0.15s;
-        }
-        .finput:focus { box-shadow: 0 0 0 2px #c4b5fd; }
-      `}</style>
     </div>
   );
 }
 
 /* ── Student Card Component ── */
 function StudentCard({ student, isSelected, onClick, parseSkills }) {
-  const skills = parseSkills(student.skills).slice(0, 3);
-
+  const skills     = parseSkills(student.skills).slice(0, 3);
   const backlogVal = student.active_backlog;
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-2xl border p-5 cursor-pointer
-                  transition hover:shadow-md
-                  ${isSelected
-                    ? 'border-violet-400 shadow-md ring-2 ring-violet-100'
-                    : 'border-slate-100 hover:border-violet-200'}`}>
-
+      className={`bg-white rounded-xl border p-5 cursor-pointer transition-all duration-200 hover:shadow-md ${
+        isSelected
+          ? 'border-primary shadow-md ring-2 ring-blue-100'
+          : 'border-slate-200 hover:border-primary'
+      }`}
+    >
       <div className="flex items-start gap-3">
         {/* Avatar */}
-        <div className="w-12 h-12 rounded-full bg-violet-50 flex items-center
-                        justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-blue-100">
           {student.profile_photo_url
-            ? <img src={student.profile_photo_url} alt=""
-                   className="w-full h-full object-cover" />
-            : <span className="text-xl font-bold text-violet-400">
+            ? <img src={student.profile_photo_url} alt="" className="w-full h-full object-cover" />
+            : <span className="text-base font-bold text-primary">
                 {student.full_name?.[0]?.toUpperCase()}
               </span>
           }
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-slate-800 truncate">
-            {student.full_name}
-          </h3>
-          <p className="text-xs text-slate-500 truncate">{student.email}</p>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <h3 className="font-bold text-textDark truncate text-sm">{student.full_name}</h3>
+          <p className="text-xs text-textMuted truncate">{student.email}</p>
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             {student.branch && (
-              <span className="text-xs bg-violet-50 text-violet-700
-                               font-semibold px-2 py-0.5 rounded-full uppercase">
+              <span className="text-xs bg-blue-50 text-primary font-semibold px-2 py-0.5 rounded-full uppercase border border-blue-100">
                 {BRANCH_LABEL[student.branch] || student.branch}
               </span>
             )}
             {student.cgpa && (
-              <span className="text-xs bg-emerald-50 text-emerald-700
-                               font-semibold px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">
                 CGPA {student.cgpa}
               </span>
             )}
             {student.year_of_passing && (
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-textMuted">
                 Batch {student.year_of_passing}
               </span>
             )}
-            {/* Backlog badge on card */}
             {backlogVal === true && (
-              <span className="text-xs bg-red-50 text-red-500 font-semibold
-                               px-2 py-0.5 rounded-full">
-                ⚠️ Backlog
+              <span className="text-xs bg-red-50 text-red-500 font-semibold px-2 py-0.5 rounded-full">
+                ⚠ Backlog
               </span>
             )}
             {backlogVal === false && (
-              <span className="text-xs bg-emerald-50 text-emerald-600
-                               font-semibold px-2 py-0.5 rounded-full">
-                ✅ No Backlog
+              <span className="text-xs bg-emerald-50 text-emerald-600 font-semibold px-2 py-0.5 rounded-full">
+                ✓ No Backlog
               </span>
             )}
           </div>
@@ -368,21 +329,19 @@ function StudentCard({ student, isSelected, onClick, parseSkills }) {
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-3">
           {skills.map(s => (
-            <span key={s}
-              className="text-xs bg-slate-100 text-slate-600
-                         px-2 py-0.5 rounded-full">
+            <span key={s} className="text-xs bg-slate-100 text-textMuted px-2 py-0.5 rounded-full">
               {s}
             </span>
           ))}
           {parseSkills(student.skills).length > 3 && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-textMuted">
               +{parseSkills(student.skills).length - 3} more
             </span>
           )}
         </div>
       )}
 
-      <p className="text-right text-xs text-violet-500 font-medium mt-2">
+      <p className="text-right text-xs text-primary font-semibold mt-3">
         {isSelected ? 'Hide details ↑' : 'View details →'}
       </p>
     </div>
@@ -391,106 +350,87 @@ function StudentCard({ student, isSelected, onClick, parseSkills }) {
 
 /* ── Student Detail Side Panel ── */
 function StudentDetailPanel({ student, onClose, parseSkills, navigate }) {
-  const skills    = parseSkills(student.skills);
+  const skills     = parseSkills(student.skills);
   const backlogVal = student.active_backlog;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100
-                    shadow-sm sticky top-24 overflow-y-auto max-h-screen pb-8">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm sticky top-20 overflow-y-auto max-h-[calc(100vh-6rem)] pb-6">
 
       {/* Panel header */}
-      <div className="flex justify-between items-center p-5
-                      border-b border-slate-100">
-        <h3 className="font-bold text-slate-800">Student Profile</h3>
+      <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+        <h3 className="font-bold text-textDark text-sm">Student Profile</h3>
         <button onClick={onClose}
-          className="text-slate-400 hover:text-slate-600
-                     text-lg font-bold leading-none">
-          ×
+          className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-textMuted transition-colors">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
       {/* Photo + name */}
-      <div className="p-5 text-center border-b border-slate-100">
-        <div className="w-20 h-20 rounded-full bg-violet-50 mx-auto mb-3
-                        overflow-hidden flex items-center justify-center">
+      <div className="px-5 py-5 text-center border-b border-slate-100">
+        <div className="w-18 h-18 rounded-full bg-blue-50 mx-auto mb-3 overflow-hidden flex items-center justify-center border-2 border-blue-100" style={{width:'4.5rem',height:'4.5rem'}}>
           {student.profile_photo_url
-            ? <img src={student.profile_photo_url} alt=""
-                   className="w-full h-full object-cover" />
-            : <span className="text-3xl font-bold text-violet-300">
+            ? <img src={student.profile_photo_url} alt="" className="w-full h-full object-cover" />
+            : <span className="text-2xl font-bold text-primary">
                 {student.full_name?.[0]?.toUpperCase()}
               </span>
           }
         </div>
-        <h3 className="font-bold text-slate-800 text-lg">{student.full_name}</h3>
-        <p className="text-sm text-slate-500">{student.email}</p>
+        <h3 className="font-bold text-textDark text-base">{student.full_name}</h3>
+        <p className="text-xs text-textMuted mt-0.5">{student.email}</p>
 
         {/* Key stats */}
         <div className="grid grid-cols-3 gap-2 mt-4">
-          <div className="bg-slate-50 rounded-xl p-2 text-center">
-            <p className="text-lg font-bold text-violet-600">
-              {student.cgpa || '—'}
-            </p>
-            <p className="text-xs text-slate-400">CGPA</p>
+          <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+            <p className="text-base font-bold text-primary">{student.cgpa || '—'}</p>
+            <p className="text-xs text-textMuted">CGPA</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-2 text-center">
-            <p className="text-sm font-bold text-slate-700 uppercase">
-              {BRANCH_LABEL[student.branch] || student.branch || '—'}
-            </p>
-            <p className="text-xs text-slate-400">Branch</p>
+          <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+            <p className="text-xs font-bold text-textDark uppercase">{BRANCH_LABEL[student.branch] || student.branch || '—'}</p>
+            <p className="text-xs text-textMuted">Branch</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-2 text-center">
-            <p className="text-lg font-bold text-slate-700">
-              {student.year_of_passing || '—'}
-            </p>
-            <p className="text-xs text-slate-400">Batch</p>
+          <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+            <p className="text-base font-bold text-textDark">{student.year_of_passing || '—'}</p>
+            <p className="text-xs text-textMuted">Batch</p>
           </div>
         </div>
 
-        {/* ── Active Backlog in side panel ── */}
+        {/* Backlog status */}
         <div className="mt-3">
           {backlogVal === true && (
-            <span className="inline-block text-xs font-semibold px-3 py-1.5
-                             rounded-full bg-red-50 text-red-600
-                             border border-red-200">
-              ⚠️ Has Active Backlog
+            <span className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full bg-red-50 text-red-600 border border-red-200">
+              ⚠ Has Active Backlog
             </span>
           )}
           {backlogVal === false && (
-            <span className="inline-block text-xs font-semibold px-3 py-1.5
-                             rounded-full bg-emerald-50 text-emerald-700
-                             border border-emerald-200">
-              ✅ No Active Backlog
+            <span className="inline-block text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ✓ No Active Backlog
             </span>
           )}
-          {backlogVal === null || backlogVal === undefined ? (
-            <span className="inline-block text-xs text-slate-400 italic">
+          {(backlogVal === null || backlogVal === undefined) && (
+            <span className="inline-block text-xs text-textMuted italic">
               Backlog status not filled
             </span>
-          ) : null}
+          )}
         </div>
       </div>
 
       {/* About */}
       {student.about && (
-        <div className="p-5 border-b border-slate-100">
-          <h4 className="text-xs font-semibold text-slate-400
-                         uppercase tracking-wide mb-2">About</h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            {student.about}
-          </p>
+        <div className="px-5 py-4 border-b border-slate-100">
+          <h4 className="text-xs font-semibold text-textMuted uppercase tracking-widest mb-2">About</h4>
+          <p className="text-sm text-textDark leading-relaxed">{student.about}</p>
         </div>
       )}
 
       {/* Skills */}
       {skills.length > 0 && (
-        <div className="p-5 border-b border-slate-100">
-          <h4 className="text-xs font-semibold text-slate-400
-                         uppercase tracking-wide mb-2">Skills</h4>
+        <div className="px-5 py-4 border-b border-slate-100">
+          <h4 className="text-xs font-semibold text-textMuted uppercase tracking-widest mb-2.5">Skills</h4>
           <div className="flex flex-wrap gap-1.5">
             {skills.map(s => (
-              <span key={s}
-                className="text-xs bg-violet-50 text-violet-700
-                           font-medium px-2.5 py-1 rounded-full">
+              <span key={s} className="text-xs bg-blue-50 text-primary font-medium px-2.5 py-1 rounded-full border border-blue-100">
                 {s}
               </span>
             ))}
@@ -499,43 +439,49 @@ function StudentDetailPanel({ student, onClose, parseSkills, navigate }) {
       )}
 
       {/* Contact & Links */}
-      <div className="p-5 border-b border-slate-100 space-y-2">
-        <h4 className="text-xs font-semibold text-slate-400
-                       uppercase tracking-wide mb-2">Contact & Links</h4>
+      <div className="px-5 py-4 border-b border-slate-100 space-y-2.5">
+        <h4 className="text-xs font-semibold text-textMuted uppercase tracking-widest mb-2">Contact & Links</h4>
         {student.phone && (
-          <p className="text-sm text-slate-600 flex items-center gap-2">
-            📞 {student.phone}
+          <p className="text-sm text-textDark flex items-center gap-2">
+            <svg className="w-4 h-4 text-textMuted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            {student.phone}
           </p>
         )}
         {student.linkedin_url && (
           <a href={student.linkedin_url} target="_blank" rel="noreferrer"
-            className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
-            🔗 LinkedIn Profile
+            className="flex items-center gap-2 text-sm text-primary hover:text-secondary hover:underline transition-colors">
+            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+            LinkedIn Profile
           </a>
         )}
         {student.github_url && (
           <a href={student.github_url} target="_blank" rel="noreferrer"
-            className="flex items-center gap-2 text-sm text-slate-700 hover:underline">
-            💻 GitHub Profile
+            className="flex items-center gap-2 text-sm text-textDark hover:text-primary hover:underline transition-colors">
+            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+            </svg>
+            GitHub Profile
           </a>
         )}
       </div>
 
       {/* Resume */}
-      <div className="p-5">
-        <h4 className="text-xs font-semibold text-slate-400
-                       uppercase tracking-wide mb-3">Resume</h4>
+      <div className="px-5 py-4">
+        <h4 className="text-xs font-semibold text-textMuted uppercase tracking-widest mb-3">Resume</h4>
         {student.resume_url ? (
           <a href={student.resume_url} target="_blank" rel="noreferrer"
-            className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100
-                       text-emerald-700 font-semibold text-sm px-4 py-2.5
-                       rounded-xl transition w-full justify-center">
-            📄 View Resume (PDF)
+            className="flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors w-full shadow-sm">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            View Resume (PDF)
           </a>
         ) : (
-          <p className="text-xs text-slate-400 italic text-center">
-            No resume uploaded
-          </p>
+          <p className="text-xs text-textMuted italic text-center">No resume uploaded</p>
         )}
       </div>
     </div>

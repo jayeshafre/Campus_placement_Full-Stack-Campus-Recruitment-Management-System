@@ -26,17 +26,13 @@ export const resetPassword  = (data) => API.post('/auth/reset-password/', data);
 
 // ── Student Profile ───────────────────────────────────────────────
 export const getMyProfile    = ()     => API.get('/students/profile/');
-export const updateMyProfile = (data) => API.put('/students/profile/', data, {
-  headers: { 'Content-Type': 'multipart/form-data' }
-});
+export const updateMyProfile = (data) => API.put('/students/profile/', data);
 export const getAllStudents  = (filters = '') => API.get(`/students/all/${filters}`);
 export const getStudentById = (id)   => API.get(`/students/profile/${id}/`);
 
 // ── Recruiter Profile ─────────────────────────────────────────────
 export const getRecruiterProfile    = ()     => API.get('/recruiters/profile/');
-export const updateRecruiterProfile = (data) => API.put('/recruiters/profile/', data, {
-  headers: { 'Content-Type': 'multipart/form-data' }
-});
+export const updateRecruiterProfile = (data) => API.put('/recruiters/profile/', data);
 export const getRecruiterById = (id) => API.get(`/recruiters/profile/${id}/`);
 
 // ── Jobs ──────────────────────────────────────────────────────────

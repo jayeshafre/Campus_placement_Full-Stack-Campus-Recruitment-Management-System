@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postJob } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 
 const BRANCHES = [
   { value: 'BCA',         label: 'Bachelor of Computer Application' },
@@ -31,55 +32,14 @@ const CITIES = [
   'Vadodara','Varanasi','Vijayawada','Visakhapatnam','Warangal',
 ];
 
-// ── CGPA Classification options ─────────────────────────────────────────────
 const CGPA_CLASSES = [
-  {
-    value:    '',
-    label:    'No Minimum (All students eligible)',
-    min_cgpa: '0',
-    color:    'border-slate-200 text-slate-600',
-    active:   'bg-slate-700 border-slate-700 text-white',
-    badge:    '',
-  },
-  {
-    value:    'third_class',
-    label:    'Third Class',
-    min_cgpa: '7.0',
-    desc:     'CGPA > 7.0',
-    color:    'border-slate-200 text-slate-600',
-    active:   'bg-slate-600 border-slate-600 text-white',
-    badge:    'bg-slate-100 text-slate-600',
-  },
-  {
-    value:    'second_class',
-    label:    'Second Class',
-    min_cgpa: '8.0',
-    desc:     'CGPA > 8.0',
-    color:    'border-blue-200 text-blue-700',
-    active:   'bg-blue-600 border-blue-600 text-white',
-    badge:    'bg-blue-50 text-blue-700',
-  },
-  {
-    value:    'first_class',
-    label:    'First Class',
-    min_cgpa: '9.0',
-    desc:     'CGPA > 9.0',
-    color:    'border-emerald-200 text-emerald-700',
-    active:   'bg-emerald-600 border-emerald-600 text-white',
-    badge:    'bg-emerald-50 text-emerald-700',
-  },
-  {
-    value:    'distinction',
-    label:    'Distinction',
-    min_cgpa: '9.5',
-    desc:     'CGPA > 9.5',
-    color:    'border-yellow-300 text-yellow-700',
-    active:   'bg-yellow-500 border-yellow-500 text-white',
-    badge:    'bg-yellow-50 text-yellow-700',
-  },
+  { value: '',             label: 'No Minimum (All students eligible)', min_cgpa: '0'  },
+  { value: 'third_class',  label: 'Third Class',  min_cgpa: '7.0', desc: 'CGPA > 7.0' },
+  { value: 'second_class', label: 'Second Class', min_cgpa: '8.0', desc: 'CGPA > 8.0' },
+  { value: 'first_class',  label: 'First Class',  min_cgpa: '9.0', desc: 'CGPA > 9.0' },
+  { value: 'distinction',  label: 'Distinction',  min_cgpa: '9.5', desc: 'CGPA > 9.5' },
 ];
 
-// ── Location Autocomplete ────────────────────────────────────────────────────
 function LocationInput({ value, onChange }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showList,    setShowList]    = useState(false);
@@ -115,73 +75,54 @@ function LocationInput({ value, onChange }) {
 
   const handleKeyDown = (e) => {
     if (!showList || !suggestions.length) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlighted(p => p < suggestions.length - 1 ? p + 1 : 0);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlighted(p => p > 0 ? p - 1 : suggestions.length - 1);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (highlighted >= 0) handleSelect(suggestions[highlighted]);
-    } else if (e.key === 'Escape') {
-      setShowList(false);
-    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setHighlighted(p => p < suggestions.length - 1 ? p + 1 : 0); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setHighlighted(p => p > 0 ? p - 1 : suggestions.length - 1); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (highlighted >= 0) handleSelect(suggestions[highlighted]); }
+    else if (e.key === 'Escape') { setShowList(false); }
   };
 
   const highlight = (city, query) => {
     const idx = city.toLowerCase().indexOf(query.toLowerCase());
     if (idx === -1) return city;
-    return (
-      <>
-        {city.slice(0, idx)}
-        <span className="font-bold text-violet-700">
-          {city.slice(idx, idx + query.length)}
-        </span>
-        {city.slice(idx + query.length)}
-      </>
-    );
+    return <>{city.slice(0, idx)}<strong style={{ color: '#2563EB' }}>{city.slice(idx, idx + query.length)}</strong>{city.slice(idx + query.length)}</>;
   };
 
   return (
-    <div ref={wrapperRef} className="relative">
-      <input type="text" value={value} onChange={handleInput}
-        onKeyDown={handleKeyDown}
+    <div ref={wrapperRef} style={{ position: 'relative' }}>
+      <input type="text" value={value} onChange={handleInput} onKeyDown={handleKeyDown}
         onFocus={() => value && suggestions.length > 0 && setShowList(true)}
         required autoComplete="off"
         placeholder="e.g. Pune / Remote / Bangalore"
-        className="input-field"
+        style={inputStyle}
+        onFocus={e => { e.target.style.borderColor = '#2563EB'; value && suggestions.length > 0 && setShowList(true); }}
+        onBlur={e  => e.target.style.borderColor = '#E2E8F0'}
       />
       {showList && suggestions.length > 0 && (
-        <ul className="absolute z-50 left-0 right-0 mt-1 bg-white border
-                       border-slate-200 rounded-xl shadow-lg overflow-hidden
-                       max-h-56 overflow-y-auto">
+        <ul style={{ position: 'absolute', zIndex: 50, left: 0, right: 0, marginTop: '4px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '10px', boxShadow: '0 4px 16px rgba(37,99,235,0.08)', overflow: 'hidden', maxHeight: '220px', overflowY: 'auto', listStyle: 'none', padding: 0, margin: '4px 0 0' }}>
           {suggestions.map((city, idx) => (
-            <li key={city} onMouseDown={() => handleSelect(city)}
-              onMouseEnter={() => setHighlighted(idx)}
-              className={`flex items-center gap-2 px-4 py-2.5 cursor-pointer
-                          text-sm transition
-                          ${highlighted === idx
-                            ? 'bg-violet-50 text-violet-800'
-                            : 'text-slate-700 hover:bg-slate-50'}`}>
-              <span className="text-slate-400">📍</span>
+            <li key={city} onMouseDown={() => handleSelect(city)} onMouseEnter={() => setHighlighted(idx)}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1rem', cursor: 'pointer', fontSize: '0.875rem', background: highlighted === idx ? '#EFF6FF' : '#FFFFFF', color: highlighted === idx ? '#1D4ED8' : '#374151' }}>
+              <span style={{ color: '#94A3B8' }}>📍</span>
               <span>{highlight(city, value)}</span>
             </li>
           ))}
         </ul>
       )}
-      {showList && suggestions.length === 0 && value.length > 0 && (
-        <div className="absolute z-50 left-0 right-0 mt-1 bg-white border
-                        border-slate-200 rounded-xl shadow-lg px-4 py-3
-                        text-sm text-slate-400">
-          No matching city — you can still type a custom location.
-        </div>
-      )}
     </div>
   );
 }
 
-// ── Main PostJob ─────────────────────────────────────────────────────────────
+const inputStyle = {
+  width: '100%', border: '1.5px solid #E2E8F0', borderRadius: '8px',
+  padding: '0.6rem 0.85rem', fontSize: '0.875rem', outline: 'none',
+  background: '#F8FAFC', color: '#1E293B', boxSizing: 'border-box', transition: 'border-color 0.2s'
+};
+
+const labelStyle = {
+  display: 'block', fontSize: '0.75rem', fontWeight: '600',
+  color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem'
+};
+
 export default function PostJob() {
   const { user }  = useAuth();
   const navigate  = useNavigate();
@@ -194,14 +135,11 @@ export default function PostJob() {
     allow_backlog: '',
   });
 
-  // CGPA class selector — separate UI state, sets form.min_cgpa automatically
   const [cgpaClass, setCgpaClass] = useState('');
+  const [saving,    setSaving]    = useState(false);
+  const [message,   setMessage]   = useState({ type: '', text: '' });
 
-  const [saving,  setSaving]  = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleCgpaClassSelect = (cls) => {
     setCgpaClass(cls.value);
@@ -210,12 +148,7 @@ export default function PostJob() {
 
   const toggleBranch = (val) => {
     const cur = form.allowed_branches;
-    setForm({
-      ...form,
-      allowed_branches: cur.includes(val)
-        ? cur.filter(b => b !== val)
-        : [...cur, val],
-    });
+    setForm({ ...form, allowed_branches: cur.includes(val) ? cur.filter(b => b !== val) : [...cur, val] });
   };
 
   const handleSubmit = async (e) => {
@@ -223,17 +156,13 @@ export default function PostJob() {
     setSaving(true);
     setMessage({ type: '', text: '' });
     try {
-      const payload = {
-        ...form,
-        allowed_branches: form.allowed_branches.join(','),
-      };
+      const payload = { ...form, allowed_branches: form.allowed_branches.join(',') };
       await postJob(payload);
       setMessage({ type: 'success', text: '✅ Job posted successfully!' });
       setTimeout(() => navigate('/jobs/manage'), 1500);
     } catch (err) {
       const d = err.response?.data;
-      const msg = d?.title?.[0] || d?.min_cgpa?.[0] ||
-                  d?.vacancy_count?.[0] || d?.error || 'Failed to post job.';
+      const msg = d?.title?.[0] || d?.min_cgpa?.[0] || d?.vacancy_count?.[0] || d?.error || 'Failed to post job.';
       setMessage({ type: 'error', text: msg });
     } finally {
       setSaving(false);
@@ -242,68 +171,52 @@ export default function PostJob() {
 
   const selectedClass = CGPA_CLASSES.find(c => c.value === cgpaClass);
 
+  const sectionStyle = {
+    background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E2E8F0',
+    padding: '1.5rem', marginBottom: '1.25rem', boxShadow: '0 2px 8px rgba(37,99,235,0.04)'
+  };
+  const sectionTitle = {
+    fontSize: '0.75rem', fontWeight: '700', color: '#64748B',
+    textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem'
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Inter', sans-serif" }}>
 
       {/* Navbar */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-3 flex
-                      justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🏢</span>
-          <span className="font-bold text-slate-800 text-lg">PlacementHub</span>
-        </div>
-        <div className="flex gap-3 items-center">
-          <button onClick={() => navigate('/jobs/manage')}
-            className="text-sm text-violet-600 hover:underline font-medium">
-            My Job Postings
-          </button>
-          <button onClick={() => navigate('/dashboard')}
-            className="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700
-                       px-3 py-1.5 rounded-lg font-medium transition">
-            Dashboard
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '2rem 1rem' }}>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Post a New Job</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Fill in the details below. Students matching your criteria will see this job.
-          </p>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1E293B', marginBottom: '0.25rem' }}>Post a New Job</h1>
+          <p style={{ color: '#64748B', fontSize: '0.875rem' }}>Fill in the details below. Students matching your criteria will see this job.</p>
         </div>
 
         {message.text && (
-          <div className={`mb-5 px-4 py-3 rounded-xl text-sm font-medium ${
-            message.type === 'success'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>{message.text}</div>
+          <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '500', background: message.type === 'success' ? '#F0FDF4' : '#FEF2F2', color: message.type === 'success' ? '#16A34A' : '#DC2626', border: `1px solid ${message.type === 'success' ? '#BBF7D0' : '#FECACA'}` }}>
+            {message.text}
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit}>
 
-          {/* ── Basic Info ── */}
-          <div className="bg-white rounded-2xl shadow-sm border
-                          border-slate-100 p-6 space-y-4">
-            <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">
-              Basic Information
-            </h2>
+          {/* Basic Info */}
+          <div style={sectionStyle}>
+            <p style={sectionTitle}>Basic Information</p>
 
-            <div>
-              <label className="label">Job Title *</label>
-              <input type="text" name="title" value={form.title}
-                onChange={handleChange} required
-                placeholder="e.g. Software Engineer, Data Analyst"
-                className="input-field" />
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={labelStyle}>Job Title *</label>
+              <input type="text" name="title" value={form.title} onChange={handleChange} required
+                placeholder="e.g. Software Engineer, Data Analyst" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div>
-                <label className="label">Job Type *</label>
-                <select name="job_type" value={form.job_type}
-                  onChange={handleChange} className="input-field">
+                <label style={labelStyle}>Job Type *</label>
+                <select name="job_type" value={form.job_type} onChange={handleChange} style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'}>
                   <option value="full_time">Full Time</option>
                   <option value="internship">Internship</option>
                   <option value="part_time">Part Time</option>
@@ -311,136 +224,98 @@ export default function PostJob() {
                 </select>
               </div>
               <div>
-                <label className="label">Location *</label>
-                <LocationInput
-                  value={form.location}
-                  onChange={(val) => setForm({ ...form, location: val })}
-                />
+                <label style={labelStyle}>Location *</label>
+                <LocationInput value={form.location} onChange={(val) => setForm({ ...form, location: val })} />
               </div>
             </div>
 
-            <div>
-              <label className="label">Job Description *</label>
-              <textarea name="description" value={form.description}
-                onChange={handleChange} required rows={4}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={labelStyle}>Job Description *</label>
+              <textarea name="description" value={form.description} onChange={handleChange} required rows={4}
                 placeholder="Describe the role, the team, and what the candidate will be working on..."
-                className="input-field resize-none" />
+                style={{ ...inputStyle, resize: 'none' }}
+                onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
             </div>
 
-            <div>
-              <label className="label">Responsibilities</label>
-              <textarea name="responsibilities" value={form.responsibilities}
-                onChange={handleChange} rows={3}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={labelStyle}>Responsibilities</label>
+              <textarea name="responsibilities" value={form.responsibilities} onChange={handleChange} rows={3}
                 placeholder="List the key day-to-day responsibilities..."
-                className="input-field resize-none" />
+                style={{ ...inputStyle, resize: 'none' }}
+                onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
             </div>
 
             <div>
-              <label className="label">Requirements</label>
-              <textarea name="requirements" value={form.requirements}
-                onChange={handleChange} rows={3}
+              <label style={labelStyle}>Requirements</label>
+              <textarea name="requirements" value={form.requirements} onChange={handleChange} rows={3}
                 placeholder="List required skills, technologies, soft skills..."
-                className="input-field resize-none" />
+                style={{ ...inputStyle, resize: 'none' }}
+                onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
             </div>
           </div>
 
-          {/* ── Compensation & Vacancies ── */}
-          <div className="bg-white rounded-2xl shadow-sm border
-                          border-slate-100 p-6 space-y-4">
-            <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">
-              Compensation & Vacancies
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
+          {/* Compensation */}
+          <div style={sectionStyle}>
+            <p style={sectionTitle}>Compensation & Vacancies</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
               <div>
-                <label className="label">Package (LPA)</label>
-                <input type="number" name="package_lpa" value={form.package_lpa}
-                  onChange={handleChange} step="0.1" min="0"
-                  placeholder="e.g. 6.5" className="input-field" />
+                <label style={labelStyle}>Package (LPA)</label>
+                <input type="number" name="package_lpa" value={form.package_lpa} onChange={handleChange}
+                  step="0.1" min="0" placeholder="e.g. 6.5" style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
               <div>
-                <label className="label">No. of Vacancies *</label>
-                <input type="number" name="vacancy_count" value={form.vacancy_count}
-                  onChange={handleChange} required min="1" className="input-field" />
+                <label style={labelStyle}>No. of Vacancies *</label>
+                <input type="number" name="vacancy_count" value={form.vacancy_count} onChange={handleChange}
+                  required min="1" style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
               <div>
-                <label className="label">Last Date to Apply</label>
-                <input type="date" name="last_date_to_apply"
-                  value={form.last_date_to_apply} onChange={handleChange}
-                  className="input-field" />
+                <label style={labelStyle}>Last Date to Apply</label>
+                <input type="date" name="last_date_to_apply" value={form.last_date_to_apply} onChange={handleChange}
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
               </div>
             </div>
           </div>
 
-          {/* ── Eligibility ── */}
-          <div className="bg-white rounded-2xl shadow-sm border
-                          border-slate-100 p-6 space-y-5">
-            <div>
-              <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">
-                Eligibility Criteria
-              </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Only students meeting these criteria will see this job posting.
-              </p>
-            </div>
+          {/* Eligibility */}
+          <div style={sectionStyle}>
+            <p style={sectionTitle}>Eligibility Criteria</p>
+            <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '1.25rem', marginTop: '-0.5rem' }}>Only students meeting these criteria will see this job posting.</p>
 
-            {/* ── CGPA Classification Selector ── */}
-            <div>
-              <label className="label">CGPA Requirement</label>
-              <p className="text-xs text-slate-400 mb-3">
-                Select the minimum academic class required for this job.
-              </p>
+            {/* CGPA */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={labelStyle}>CGPA Requirement</label>
+              <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.75rem' }}>Select the minimum academic class required for this job.</p>
 
-              {/* Classification cards */}
-              <div className="grid grid-cols-1 gap-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {CGPA_CLASSES.map(cls => (
-                  <button key={cls.value} type="button"
-                    onClick={() => handleCgpaClassSelect(cls)}
-                    className={`flex items-center justify-between px-4 py-3
-                                rounded-xl border-2 text-sm font-semibold
-                                transition text-left
-                                ${cgpaClass === cls.value
-                                  ? cls.active
-                                  : `bg-white ${cls.color} hover:shadow-sm`
-                                }`}>
-                    <div className="flex items-center gap-3">
-                      {/* Selection dot */}
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center
-                                       justify-center flex-shrink-0
-                                       ${cgpaClass === cls.value
-                                         ? 'border-white'
-                                         : 'border-slate-300'}`}>
-                        {cgpaClass === cls.value && (
-                          <div className="w-2 h-2 rounded-full bg-white" />
-                        )}
+                  <button key={cls.value} type="button" onClick={() => handleCgpaClassSelect(cls)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '0.75rem 1rem', borderRadius: '10px', border: '2px solid',
+                      cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
+                      borderColor: cgpaClass === cls.value ? '#2563EB' : '#E2E8F0',
+                      background: cgpaClass === cls.value ? '#EFF6FF' : '#F8FAFC',
+                    }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${cgpaClass === cls.value ? '#2563EB' : '#CBD5E1'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {cgpaClass === cls.value && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563EB' }} />}
                       </div>
-
                       <div>
-                        <span className="font-bold">
-                          {cls.value === ''
-                            ? '🔓 No Minimum'
+                        <span style={{ fontWeight: '700', fontSize: '0.875rem', color: cgpaClass === cls.value ? '#1D4ED8' : '#374151' }}>
+                          {cls.value === '' ? '🔓 No Minimum'
                             : cls.value === 'third_class'  ? '🥉 Third Class'
                             : cls.value === 'second_class' ? '🥈 Second Class'
                             : cls.value === 'first_class'  ? '🥇 First Class'
                             : '🏅 Distinction'}
                         </span>
-                        {cls.desc && (
-                          <span className={`ml-2 text-xs font-normal
-                                            ${cgpaClass === cls.value
-                                              ? 'opacity-80'
-                                              : 'text-slate-400'}`}>
-                            ({cls.desc})
-                          </span>
-                        )}
+                        {cls.desc && <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#94A3B8' }}>({cls.desc})</span>}
                       </div>
                     </div>
-
-                    {/* Min CGPA pill */}
                     {cls.value !== '' && (
-                      <span className={`text-xs px-2.5 py-1 rounded-full
-                                         font-semibold flex-shrink-0
-                                         ${cgpaClass === cls.value
-                                           ? 'bg-white/20'
-                                           : cls.badge}`}>
+                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: '20px', fontWeight: '600', background: cgpaClass === cls.value ? '#DBEAFE' : '#F1F5F9', color: cgpaClass === cls.value ? '#1D4ED8' : '#64748B' }}>
                         Min CGPA: {cls.min_cgpa}
                       </span>
                     )}
@@ -448,103 +323,60 @@ export default function PostJob() {
                 ))}
               </div>
 
-              {/* Live summary */}
-              {selectedClass && selectedClass.value !== '' && (
-                <div className={`mt-3 px-4 py-3 rounded-xl text-sm font-medium
-                                  flex items-center gap-2 border
-                                  ${selectedClass.badge} border-current/20`}>
-                  ✅ Only students with CGPA &gt; {selectedClass.min_cgpa}
-                  ({selectedClass.label}) can apply to this job.
-                </div>
-              )}
-              {selectedClass && selectedClass.value === '' && (
-                <div className="mt-3 px-4 py-3 rounded-xl text-sm font-medium
-                                bg-slate-50 text-slate-600 border border-slate-200">
-                  🔓 All students are eligible regardless of CGPA.
+              {selectedClass && (
+                <div style={{ marginTop: '0.75rem', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '500', background: selectedClass.value === '' ? '#F8FAFC' : '#EFF6FF', color: selectedClass.value === '' ? '#64748B' : '#1D4ED8', border: `1px solid ${selectedClass.value === '' ? '#E2E8F0' : '#BFDBFE'}` }}>
+                  {selectedClass.value === ''
+                    ? '🔓 All students are eligible regardless of CGPA.'
+                    : `✅ Only students with CGPA > ${selectedClass.min_cgpa} (${selectedClass.label}) can apply.`}
                 </div>
               )}
 
-              {/* Manual override */}
-              <div className="mt-3">
-                <label className="label">Or enter exact Min CGPA manually</label>
+              <div style={{ marginTop: '0.75rem' }}>
+                <label style={labelStyle}>Or enter exact Min CGPA manually</label>
                 <input type="number" name="min_cgpa" value={form.min_cgpa}
-                  onChange={e => {
-                    handleChange(e);
-                    setCgpaClass(''); // clear class selection when typing manually
-                  }}
-                  step="0.1" min="0" max="10"
-                  placeholder="e.g. 7.5"
-                  className="input-field" />
-                <p className="text-xs text-slate-400 mt-1">
-                  Manually entering a value will clear the class selection above.
-                </p>
+                  onChange={e => { handleChange(e); setCgpaClass(''); }}
+                  step="0.1" min="0" max="10" placeholder="e.g. 7.5" style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#2563EB'} onBlur={e => e.target.style.borderColor = '#E2E8F0'} />
+                <p style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '4px' }}>Manually entering a value will clear the class selection above.</p>
               </div>
             </div>
 
-            {/* ── Active Backlog Policy ── */}
-            <div>
-              <label className="label">Allow Students with Active Backlog?</label>
-              <p className="text-xs text-slate-400 mb-3">
-                Choose whether students with an active backlog can apply.
-              </p>
-              <div className="flex gap-3">
-                <button type="button"
-                  onClick={() => setForm({ ...form, allow_backlog: 'true' })}
-                  className={`flex-1 py-3 rounded-xl text-sm font-semibold
-                              border-2 transition flex items-center justify-center gap-2
-                              ${form.allow_backlog === 'true'
-                                ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
-                                : 'bg-white border-slate-200 text-slate-600 hover:border-amber-300'
-                              }`}>
-                  <span>⚠️</span> Yes, allowed
-                </button>
-                <button type="button"
-                  onClick={() => setForm({ ...form, allow_backlog: 'false' })}
-                  className={`flex-1 py-3 rounded-xl text-sm font-semibold
-                              border-2 transition flex items-center justify-center gap-2
-                              ${form.allow_backlog === 'false'
-                                ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm'
-                                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
-                              }`}>
-                  <span>✅</span> No backlog only
-                </button>
+            {/* Backlog */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={labelStyle}>Allow Students with Active Backlog?</label>
+              <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.75rem' }}>Choose whether students with an active backlog can apply.</p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {[{ val: 'true', label: '⚠️ Yes, allowed', activeColor: '#F59E0B' }, { val: 'false', label: '✅ No backlog only', activeColor: '#16A34A' }].map(b => (
+                  <button key={b.val} type="button" onClick={() => setForm({ ...form, allow_backlog: b.val })}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '600', cursor: 'pointer', border: '2px solid', transition: 'all 0.15s',
+                      borderColor: form.allow_backlog === b.val ? b.activeColor : '#E2E8F0',
+                      background: form.allow_backlog === b.val ? (b.val === 'true' ? '#FFFBEB' : '#F0FDF4') : '#F8FAFC',
+                      color: form.allow_backlog === b.val ? b.activeColor : '#64748B' }}>
+                    {b.label}
+                  </button>
+                ))}
               </div>
-              {form.allow_backlog === 'true' && (
-                <p className="text-xs text-amber-600 font-medium mt-2">
-                  ⚠️ Students with active backlogs can apply.
-                </p>
-              )}
-              {form.allow_backlog === 'false' && (
-                <p className="text-xs text-emerald-600 font-medium mt-2">
-                  ✅ Only students with no active backlog can apply.
-                </p>
-              )}
             </div>
 
-            {/* ── Branches ── */}
+            {/* Branches */}
             <div>
-              <label className="label">Allowed Branches</label>
-              <p className="text-xs text-slate-400 mb-2">
-                Leave all unchecked = all branches allowed.
-              </p>
-              <div className="grid grid-cols-3 gap-2">
+              <label style={labelStyle}>Allowed Branches</label>
+              <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.75rem' }}>Leave all unchecked = all branches allowed.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                 {BRANCHES.map(b => (
                   <label key={b.value}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl
-                                border cursor-pointer text-sm transition ${
-                      form.allowed_branches.includes(b.value)
-                        ? 'bg-violet-50 border-violet-300 text-violet-700 font-semibold'
-                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-violet-200'
-                    }`}>
-                    <input type="checkbox" className="hidden"
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1.5px solid', cursor: 'pointer', fontSize: '0.8rem', transition: 'all 0.15s',
+                      borderColor: form.allowed_branches.includes(b.value) ? '#2563EB' : '#E2E8F0',
+                      background: form.allowed_branches.includes(b.value) ? '#EFF6FF' : '#F8FAFC',
+                      color: form.allowed_branches.includes(b.value) ? '#1D4ED8' : '#475569',
+                      fontWeight: form.allowed_branches.includes(b.value) ? '600' : '400' }}>
+                    <input type="checkbox" style={{ display: 'none' }}
                       checked={form.allowed_branches.includes(b.value)}
                       onChange={() => toggleBranch(b.value)} />
-                    <span className={`w-4 h-4 rounded border-2 flex items-center
-                                      justify-center text-xs flex-shrink-0 ${
-                      form.allowed_branches.includes(b.value)
-                        ? 'bg-violet-600 border-violet-600 text-white'
-                        : 'border-slate-300'
-                    }`}>
+                    <span style={{ width: '16px', height: '16px', borderRadius: '4px', border: '2px solid', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', flexShrink: 0,
+                      borderColor: form.allowed_branches.includes(b.value) ? '#2563EB' : '#CBD5E1',
+                      background: form.allowed_branches.includes(b.value) ? '#2563EB' : 'transparent',
+                      color: '#FFFFFF' }}>
                       {form.allowed_branches.includes(b.value) && '✓'}
                     </span>
                     {b.label}
@@ -552,43 +384,24 @@ export default function PostJob() {
                 ))}
               </div>
               {form.allowed_branches.length === 0 && (
-                <p className="text-xs text-emerald-600 mt-2 font-medium">
-                  ✅ All branches are eligible
-                </p>
+                <p style={{ fontSize: '0.8rem', color: '#16A34A', fontWeight: '500', marginTop: '8px' }}>✅ All branches are eligible</p>
               )}
             </div>
           </div>
 
-          {/* ── Submit ── */}
-          <div className="flex gap-3 justify-end">
+          {/* Submit */}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
             <button type="button" onClick={() => navigate('/jobs/manage')}
-              className="px-6 py-2.5 rounded-xl text-sm font-medium
-                         bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
+              style={{ padding: '0.65rem 1.5rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '600', background: '#F1F5F9', color: '#475569', border: 'none', cursor: 'pointer' }}>
               Cancel
             </button>
             <button type="submit" disabled={saving}
-              className="px-8 py-2.5 rounded-xl text-sm font-semibold
-                         bg-violet-600 hover:bg-violet-700 text-white
-                         shadow-sm transition disabled:opacity-60">
+              style={{ padding: '0.65rem 2rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '600', background: saving ? '#93C5FD' : 'linear-gradient(135deg, #2563EB, #4F46E5)', color: '#FFFFFF', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 2px 8px rgba(37,99,235,0.25)' }}>
               {saving ? 'Posting...' : '🚀 Post Job'}
             </button>
           </div>
         </form>
       </div>
-
-      <style>{`
-        .label {
-          display: block; font-size: 0.75rem; font-weight: 600;
-          color: #94a3b8; text-transform: uppercase;
-          letter-spacing: 0.05em; margin-bottom: 0.375rem;
-        }
-        .input-field {
-          width: 100%; border: 1px solid #e2e8f0; border-radius: 0.5rem;
-          padding: 0.5rem 0.75rem; font-size: 0.875rem; outline: none;
-          transition: box-shadow 0.15s; background: white;
-        }
-        .input-field:focus { box-shadow: 0 0 0 2px #c4b5fd; }
-      `}</style>
     </div>
   );
 }

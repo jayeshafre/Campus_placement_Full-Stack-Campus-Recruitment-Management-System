@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login               from './pages/Login';
 import Register            from './pages/Register';
-import Forgotpassword      from './pages/Forgotpassword';   // FIX: was missing route
-import Resetpassword       from './pages/Resetpassword';    // FIX: was missing route
+import Forgotpassword      from './pages/Forgotpassword';
+import Resetpassword       from './pages/Resetpassword';
 import Dashboard           from './pages/Dashboard';
 import StudentProfile      from './pages/StudentProfile';
 import RecruiterProfile    from './pages/RecruiterProfile';
@@ -18,15 +18,16 @@ import ApplicationTracker  from './pages/ApplicationTracker';
 import RecruiterTracker    from './pages/RecruiterTracker';
 import AdminDashboard      from './pages/AdminDashboard';
 
+
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50">
+    <div className="flex items-center justify-center min-h-screen bg-background font-sans">
       <div className="text-center">
-        <div className="w-10 h-10 border-4 border-indigo-500
+        <div className="w-10 h-10 border-4 border-primary
                         border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-slate-500 text-sm font-medium">Loading...</p>
+        <p className="text-textMuted text-sm font-medium">Loading...</p>
       </div>
     </div>
   );
@@ -43,8 +44,8 @@ function App() {
           {/* ── Public ─────────────────────────────────────────── */}
           <Route path="/login"           element={<Login />} />
           <Route path="/register"        element={<Register />} />
-          <Route path="/forgot-password" element={<Forgotpassword />} />   {/* FIX: added */}
-          <Route path="/reset-password"  element={<Resetpassword />} />    {/* FIX: added */}
+          <Route path="/forgot-password" element={<Forgotpassword />} />
+          <Route path="/reset-password"  element={<Resetpassword />} />
 
           {/* ── Shared ─────────────────────────────────────────── */}
           <Route path="/dashboard" element={
@@ -54,9 +55,21 @@ function App() {
           <Route path="/profile" element={
             <PrivateRoute><StudentProfile /></PrivateRoute>} />
 
+          {/* BrowseJobs — must be before /jobs/:job_id */}
           <Route path="/jobs" element={
             <PrivateRoute><BrowseJobs /></PrivateRoute>} />
 
+          {/* ⚠️ FIX: these specific routes MUST come before /jobs/:job_id */}
+          <Route path="/jobs/post" element={
+            <PrivateRoute><PostJob /></PrivateRoute>} />
+
+          <Route path="/jobs/manage" element={
+            <PrivateRoute><ManageJobs /></PrivateRoute>} />
+
+          <Route path="/jobs/applicants/:job_id" element={
+            <PrivateRoute><JobApplicants /></PrivateRoute>} />
+
+          {/* Dynamic route — comes LAST among /jobs/* */}
           <Route path="/jobs/:job_id" element={
             <PrivateRoute><JobDetail /></PrivateRoute>} />
 
@@ -69,15 +82,6 @@ function App() {
           {/* ── Recruiter ──────────────────────────────────────── */}
           <Route path="/recruiter/profile" element={
             <PrivateRoute><RecruiterProfile /></PrivateRoute>} />
-
-          <Route path="/jobs/post" element={
-            <PrivateRoute><PostJob /></PrivateRoute>} />
-
-          <Route path="/jobs/manage" element={
-            <PrivateRoute><ManageJobs /></PrivateRoute>} />
-
-          <Route path="/jobs/applicants/:job_id" element={
-            <PrivateRoute><JobApplicants /></PrivateRoute>} />
 
           <Route path="/students/browse" element={
             <PrivateRoute><BrowseStudents /></PrivateRoute>} />

@@ -2,28 +2,29 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getJobDetail, applyToJob, checkApplication, withdrawApplication } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 
 const JOB_TYPE_LABELS = {
   full_time: 'Full Time', internship: 'Internship',
   part_time: 'Part Time', contract: 'Contract',
 };
 
-const STATUS_COLORS = {
-  applied:      'bg-blue-50 text-blue-700',
-  under_review: 'bg-yellow-50 text-yellow-700',
-  shortlisted:  'bg-purple-50 text-purple-700',
-  selected:     'bg-emerald-50 text-emerald-700',
-  rejected:     'bg-red-50 text-red-700',
-  withdrawn:    'bg-slate-100 text-slate-500',
+const STATUS_STYLES = {
+  applied:      { bg: '#EFF6FF', color: '#2563EB', border: '#BFDBFE',  label: '📋 Applied' },
+  under_review: { bg: '#FFFBEB', color: '#D97706', border: '#FDE68A',  label: '🔍 Under Review' },
+  shortlisted:  { bg: '#EEF2FF', color: '#4F46E5', border: '#C7D2FE',  label: '⭐ Shortlisted' },
+  selected:     { bg: '#F0FDF4', color: '#16A34A', border: '#BBF7D0',  label: '🎉 Selected!' },
+  rejected:     { bg: '#FEF2F2', color: '#DC2626', border: '#FECACA',  label: '❌ Rejected' },
+  withdrawn:    { bg: '#F8FAFC', color: '#64748B', border: '#E2E8F0',  label: 'Withdrawn' },
 };
 
 export default function JobDetail() {
-  const { job_id }    = useParams();
-  const { user }      = useAuth();
-  const navigate      = useNavigate();
+  const { job_id } = useParams();
+  const { user }   = useAuth();
+  const navigate   = useNavigate();
 
   const [job,         setJob]         = useState(null);
-  const [appStatus,   setAppStatus]   = useState(null);   // null = not applied
+  const [appStatus,   setAppStatus]   = useState(null);
   const [appId,       setAppId]       = useState(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [showForm,    setShowForm]    = useState(false);
@@ -67,10 +68,7 @@ export default function JobDetail() {
       setShowForm(false);
       setMessage({ type: 'success', text: '✅ Application submitted successfully!' });
     } catch (err) {
-      setMessage({
-        type: 'error',
-        text: err.response?.data?.error || 'Failed to apply.'
-      });
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to apply.' });
     } finally {
       setApplying(false);
     }
@@ -84,91 +82,90 @@ export default function JobDetail() {
       setAppId(null);
       setMessage({ type: 'success', text: '✅ Application withdrawn.' });
     } catch (err) {
-      setMessage({
-        type: 'error',
-        text: err.response?.data?.error || 'Cannot withdraw.'
-      });
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Cannot withdraw.' });
     }
   };
 
+  const cardStyle = {
+    background: '#FFFFFF', borderRadius: '14px',
+    border: '1px solid #E2E8F0', padding: '1.5rem',
+    boxShadow: '0 2px 8px rgba(37,99,235,0.04)', marginBottom: '1rem'
+  };
+  const secTitle = {
+    fontSize: '0.7rem', fontWeight: '700', color: '#94A3B8',
+    textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem'
+  };
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', fontFamily: "'Inter', sans-serif" }}>
+      <div style={{ width: '40px', height: '40px', border: '3px solid #2563EB', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
   if (!job) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <p className="text-2xl mb-2">😕</p>
-        <p className="text-slate-600">Job not found.</p>
-        <button onClick={() => navigate('/jobs')} className="mt-3 text-indigo-600 hover:underline text-sm">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif" }}>
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ fontSize: '2rem', marginBottom: '8px' }}>😕</p>
+        <p style={{ color: '#64748B', marginBottom: '12px' }}>Job not found.</p>
+        <button onClick={() => navigate('/jobs')}
+          style={{ color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600' }}>
           ← Back to Jobs
         </button>
       </div>
     </div>
   );
 
+  const statusStyle = appStatus ? STATUS_STYLES[appStatus] : null;
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Inter', sans-serif" }}>
 
       {/* Navbar */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🎓</span>
-          <span className="font-bold text-slate-800 text-lg">PlacementHub</span>
-        </div>
-        <button onClick={() => navigate(user?.role === 'student' ? '/jobs' : '/jobs/manage')}
-          className="text-sm text-indigo-600 hover:underline font-medium">
-          ← Back to Jobs
-        </button>
-      </nav>
+      <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '2rem 1rem' }}>
 
+        {/* Alert */}
         {message.text && (
-          <div className={`mb-5 px-4 py-3 rounded-xl text-sm font-medium ${
-            message.type === 'success'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>{message.text}</div>
+          <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px', background: message.type === 'success' ? '#F0FDF4' : '#FEF2F2', color: message.type === 'success' ? '#16A34A' : '#DC2626', border: `1px solid ${message.type === 'success' ? '#BBF7D0' : '#FECACA'}` }}>
+            {message.text}
+          </div>
         )}
 
         {/* Job Header Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-5">
-          <div className="flex items-start gap-5">
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
 
-            {/* Company logo */}
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-indigo-50 flex items-center justify-center flex-shrink-0">
+            {/* Logo */}
+            <div style={{ width: '60px', height: '60px', borderRadius: '14px', overflow: 'hidden', background: '#EFF6FF', border: '1px solid #DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {job.company_logo
-                ? <img src={job.company_logo} alt="logo" className="w-full h-full object-contain p-1" />
-                : <span className="text-3xl">🏢</span>}
+                ? <img src={job.company_logo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
+                : <span style={{ fontSize: '1.75rem' }}>🏢</span>}
             </div>
 
-            <div className="flex-1">
-              <div className="flex items-start justify-between flex-wrap gap-3">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
-                  <h1 className="text-2xl font-bold text-slate-800">{job.title}</h1>
-                  <p className="text-slate-500 font-medium mt-0.5">
+                  <h1 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#1E293B', marginBottom: '4px' }}>{job.title}</h1>
+                  <p style={{ fontSize: '0.875rem', color: '#64748B', fontWeight: '500' }}>
                     {job.company_name} · {job.location}
                   </p>
                 </div>
 
-                {/* Apply / Status button — only for students */}
+                {/* Apply / Status — students only */}
                 {user?.role === 'student' && (
-                  <div>
+                  <div style={{ textAlign: 'right' }}>
                     {appStatus ? (
-                      <div className="text-right">
-                        <span className={`inline-block text-sm font-semibold px-4 py-2 rounded-xl ${STATUS_COLORS[appStatus]}`}>
-                          {appStatus === 'applied'      && '📋 Applied'}
-                          {appStatus === 'under_review' && '🔍 Under Review'}
-                          {appStatus === 'shortlisted'  && '⭐ Shortlisted'}
-                          {appStatus === 'selected'     && '🎉 Selected!'}
-                          {appStatus === 'rejected'     && '❌ Rejected'}
+                      <div>
+                        <span style={{ display: 'inline-block', fontSize: '0.875rem', fontWeight: '600', padding: '0.45rem 1rem', borderRadius: '10px', background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}` }}>
+                          {statusStyle.label}
                         </span>
                         {!['selected', 'rejected'].includes(appStatus) && (
                           <button onClick={handleWithdraw}
-                            className="block mt-2 text-xs text-slate-400 hover:text-red-500 transition underline ml-auto">
+                            style={{ display: 'block', marginTop: '8px', fontSize: '0.75rem', color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginLeft: 'auto' }}
+                            onMouseEnter={e => e.target.style.color = '#DC2626'}
+                            onMouseLeave={e => e.target.style.color = '#94A3B8'}>
                             Withdraw Application
                           </button>
                         )}
@@ -176,7 +173,9 @@ export default function JobDetail() {
                     ) : (
                       <button
                         onClick={() => setShowForm(true)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                        style={{ background: 'linear-gradient(135deg, #2563EB, #4F46E5)', color: '#FFFFFF', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '10px', fontSize: '0.875rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 8px rgba(37,99,235,0.25)' }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '0.92'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
                         Apply Now →
                       </button>
                     )}
@@ -184,36 +183,35 @@ export default function JobDetail() {
                 )}
               </div>
 
-              {/* Job meta badges */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+              {/* Badges */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '1rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.25rem 0.7rem', borderRadius: '20px', background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE' }}>
                   {JOB_TYPE_LABELS[job.job_type]}
                 </span>
                 {job.package_lpa && (
-                  <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.25rem 0.7rem', borderRadius: '20px', background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0' }}>
                     💰 {job.package_lpa} LPA
                   </span>
                 )}
-                <span className="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full">
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.25rem 0.7rem', borderRadius: '20px', background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0' }}>
                   👥 {job.vacancy_count} vacanc{job.vacancy_count > 1 ? 'ies' : 'y'}
                 </span>
-                <span className="bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full">
+                <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.25rem 0.7rem', borderRadius: '20px', background: '#FFFBEB', color: '#D97706', border: '1px solid #FDE68A' }}>
                   🎓 CGPA ≥ {job.min_cgpa}
                 </span>
                 {job.last_date_to_apply && (
-                  <span className="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.25rem 0.7rem', borderRadius: '20px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
                     ⏰ Deadline: {new Date(job.last_date_to_apply).toLocaleDateString()}
                   </span>
                 )}
               </div>
 
-              {/* Allowed branches */}
+              {/* Branches */}
               {job.allowed_branches && (
-                <div className="flex gap-1.5 mt-2 flex-wrap">
-                  <span className="text-xs text-slate-400 font-medium">Branches:</span>
+                <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: '500' }}>Branches:</span>
                   {job.allowed_branches.split(',').map(b => (
-                    <span key={b}
-                      className="text-xs bg-purple-50 text-purple-700 font-medium px-2 py-0.5 rounded-full uppercase">
+                    <span key={b} style={{ fontSize: '0.7rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '20px', background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', textTransform: 'uppercase' }}>
                       {b.trim()}
                     </span>
                   ))}
@@ -223,31 +221,34 @@ export default function JobDetail() {
           </div>
         </div>
 
-        {/* Apply Form — appears when student clicks Apply Now */}
+        {/* Apply Form */}
         {showForm && !appStatus && (
-          <div className="bg-white rounded-2xl shadow-sm border border-indigo-100 p-6 mb-5">
-            <h3 className="font-semibold text-slate-700 mb-3">
-              ✍️ Apply for <span className="text-indigo-600">{job.title}</span>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1.5px solid #BFDBFE', padding: '1.5rem', marginBottom: '1rem', boxShadow: '0 4px 16px rgba(37,99,235,0.08)' }}>
+            <h3 style={{ fontWeight: '700', color: '#1E293B', fontSize: '1rem', marginBottom: '1rem' }}>
+              ✍️ Apply for{' '}
+              <span style={{ color: '#2563EB' }}>{job.title}</span>
             </h3>
-            <div className="mb-4">
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
-                Cover Letter <span className="text-slate-300 font-normal">(optional)</span>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                Cover Letter <span style={{ color: '#CBD5E1', fontWeight: '400', textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
               </label>
               <textarea
                 value={coverLetter}
                 onChange={e => setCoverLetter(e.target.value)}
                 rows={4}
                 placeholder="Tell the recruiter why you're a great fit for this role..."
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                style={{ width: '100%', border: '1.5px solid #E2E8F0', borderRadius: '10px', padding: '0.75rem 1rem', fontSize: '0.875rem', outline: 'none', resize: 'none', background: '#F8FAFC', color: '#1E293B', boxSizing: 'border-box' }}
+                onFocus={e => e.target.style.borderColor = '#2563EB'}
+                onBlur={e  => e.target.style.borderColor = '#E2E8F0'}
               />
             </div>
-            <div className="flex gap-3 justify-end">
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowForm(false)}
-                className="px-5 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
+                style={{ padding: '0.55rem 1.25rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: '600', background: '#F1F5F9', color: '#475569', border: 'none', cursor: 'pointer' }}>
                 Cancel
               </button>
               <button onClick={handleApply} disabled={applying}
-                className="px-6 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition disabled:opacity-60">
+                style={{ padding: '0.55rem 1.5rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: '600', background: applying ? '#93C5FD' : 'linear-gradient(135deg, #2563EB, #4F46E5)', color: '#FFFFFF', border: 'none', cursor: applying ? 'not-allowed' : 'pointer', boxShadow: '0 2px 8px rgba(37,99,235,0.25)' }}>
                 {applying ? 'Submitting...' : '🚀 Submit Application'}
               </button>
             </div>
@@ -255,25 +256,21 @@ export default function JobDetail() {
         )}
 
         {/* Job Details */}
-        <div className="grid grid-cols-1 gap-5">
+        <div>
 
           {/* Description */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <h3 className="font-semibold text-slate-700 mb-3 text-sm uppercase tracking-wide">
-              About the Role
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+          <div style={cardStyle}>
+            <p style={secTitle}>About the Role</p>
+            <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
               {job.description}
             </p>
           </div>
 
           {/* Responsibilities */}
           {job.responsibilities && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="font-semibold text-slate-700 mb-3 text-sm uppercase tracking-wide">
-                Responsibilities
-              </h3>
-              <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+            <div style={cardStyle}>
+              <p style={secTitle}>Responsibilities</p>
+              <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
                 {job.responsibilities}
               </p>
             </div>
@@ -281,15 +278,14 @@ export default function JobDetail() {
 
           {/* Requirements */}
           {job.requirements && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="font-semibold text-slate-700 mb-3 text-sm uppercase tracking-wide">
-                Requirements
-              </h3>
-              <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+            <div style={cardStyle}>
+              <p style={secTitle}>Requirements</p>
+              <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
                 {job.requirements}
               </p>
             </div>
           )}
+
         </div>
       </div>
     </div>

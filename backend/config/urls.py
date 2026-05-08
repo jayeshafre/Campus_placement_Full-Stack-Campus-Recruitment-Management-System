@@ -7,10 +7,10 @@ urlpatterns = [
     path('admin/',            admin.site.urls),
     path('api/auth/',         include('users.urls')),
     path('api/students/',     include('students.urls')),
-   #path('api/recruiters/',   include('recruiters.urls')),
-    #path('api/jobs/',         include('jobs.urls')),
-   # path('api/applications/', include('applications.urls')),
-    #path('api/admin/',        include('admin_panel.urls')),
+    path('api/recruiters/',   include('recruiters.urls')),
+    path('api/jobs/',         include('jobs.urls')),
+    path('api/applications/', include('applications.urls')),
+    path('api/admin/',        include('admin_panel.urls')),
 ]
 
 if settings.DEBUG:
