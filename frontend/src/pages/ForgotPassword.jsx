@@ -27,19 +27,15 @@ export default function ForgotPassword() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', fontFamily: "'Inter', sans-serif" }}>
-
       <div style={{ background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 4px 24px rgba(37,99,235,0.08)', padding: '2.5rem', width: '100%', maxWidth: '440px', border: '1px solid #E2E8F0' }}>
 
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
           <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #2563EB, #4F46E5)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-              <path d="M12 3L2 8l10 5 10-5-10-5z" fill="white"/>
-              <path d="M2 16l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <span style={{ color: 'white', fontWeight: '700', fontSize: '1.1rem' }}>P</span>
           </div>
           <div>
-            <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1E293B', letterSpacing: '-0.3px' }}>CampusPlace</div>
+            <div style={{ fontSize: '1rem', fontWeight: '700', color: '#1E293B', letterSpacing: '-0.3px' }}>PlacementHub</div>
             <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: '500', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Placement Portal</div>
           </div>
         </div>
@@ -73,20 +69,14 @@ export default function ForgotPassword() {
           <div style={{ marginBottom: '0.5rem' }}>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: '600', color: '#374151', marginBottom: '0.4rem' }}>Email address</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@college.edu"
+              type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@college.edu"
               style={{ width: '100%', border: '1.5px solid #E2E8F0', borderRadius: '8px', padding: '0.65rem 0.9rem', fontSize: '0.9rem', color: '#1E293B', outline: 'none', boxSizing: 'border-box', background: '#F8FAFC' }}
               onFocus={e => e.target.style.borderColor = '#2563EB'}
               onBlur={e  => e.target.style.borderColor = '#E2E8F0'}
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading || !!success}
+          <button type="submit" disabled={loading || !!success}
             style={{ width: '100%', background: (loading || success) ? '#93C5FD' : 'linear-gradient(135deg, #2563EB, #4F46E5)', color: '#FFFFFF', fontWeight: '600', fontSize: '0.925rem', padding: '0.75rem', borderRadius: '8px', border: 'none', cursor: (loading || success) ? 'not-allowed' : 'pointer', marginTop: '1.25rem', letterSpacing: '0.2px', boxShadow: '0 2px 8px rgba(37,99,235,0.25)' }}
             onMouseEnter={e => { if (!loading && !success) e.target.style.opacity = '0.92' }}
             onMouseLeave={e => e.target.style.opacity = '1'}
@@ -107,7 +97,6 @@ export default function ForgotPassword() {
             Back to sign in
           </Link>
         </div>
-
       </div>
     </div>
   );
